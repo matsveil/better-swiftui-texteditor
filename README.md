@@ -21,13 +21,13 @@ Add BetterSwiftUITextEditor to your Swift package dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yourusername/better-swiftui-texteditor.git", from: "1.0.0")
+    .package(url: "https://github.com/matsveil/better-swiftui-texteditor.git", from: "1.0.0")
 ]
 ```
 
 Or add it directly through Xcode:
 1. Go to File > Add Packages...
-2. Enter the repository URL: `https://github.com/yourusername/better-swiftui-texteditor.git`
+2. Enter the repository URL: `https://github.com/matsveil/better-swiftui-texteditor.git`
 3. Follow the prompts to complete installation
 
 ## Basic Usage
