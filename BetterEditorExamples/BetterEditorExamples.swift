@@ -1,4 +1,5 @@
 import SwiftUI
+import BetterSwiftUITextEditor
 
 /// A showcase view that demonstrates different configurations and customizations of BetterEditor.
 /// This view contains multiple examples illustrating various features of the BetterEditor component,
@@ -20,6 +21,12 @@ struct BetterEditorExamples: View {
     
     /// Text storage for the multiline example
     @State private var multilineText = ""
+    
+    /// Text storage for the line counting example
+    @State private var lineCountingText = ""
+    
+    /// Tracks the number of lines in the line counting example
+    @State private var lineCount = 0
     
     /// Controls whether the interface is displayed in dark mode
     @State private var isDarkMode = false
@@ -55,6 +62,10 @@ struct BetterEditorExamples: View {
                         // Multiline example - demonstrates a larger text area for multi-paragraph content
                         sectionHeader("Multiline Notes")
                         multilineExample
+                        
+                        // Line counting example - demonstrates tracking the number of lines
+                        sectionHeader("Line Counting")
+                        lineCountingExample
                     }
                 }
                 .padding()
@@ -267,6 +278,45 @@ struct BetterEditorExamples: View {
             .padding(12)
             .background(Color.gray.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
+    
+    /// Line counting example demonstrating how to track the number of lines.
+    /// This example shows:
+    /// - Using the numberOfLines binding to track line count
+    /// - Displaying the current line count
+    /// - Visual feedback when line count changes
+    private var lineCountingExample: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Track the number of lines in real-time")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            // BetterEditor configured with line counting
+            BetterEditor(
+                text: $lineCountingText,
+                placeholder: "Type multiple lines \nWow, so many lines",
+                numberOfLines: $lineCount
+            )
+            .padding(12)
+            .background(Color.gray.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            // Display current line count
+            HStack {
+                Text("Current line count: \(lineCount)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                // Button to clear the text
+                Button("Clear") {
+                    lineCountingText = ""
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+            }
         }
     }
 }

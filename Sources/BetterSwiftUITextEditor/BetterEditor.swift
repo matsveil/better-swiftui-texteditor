@@ -135,8 +135,14 @@ public struct BetterEditor: View {
     /// Whether to show the character count below the editor
     private let showCharacterCount: Bool
     
+    /// Binding to track the number of lines
+    private let numberOfLines: Binding<Int>?
+    
     /// Tracks the calculated line height for proper sizing
     @State private var lineHeight: CGFloat = 0
+    
+    /// Tracks the total height of the text content
+    @State private var totalHeight: CGFloat = 0
     
     /// Tracks whether the editor currently has focus
     @FocusState private var isFocused: Bool
@@ -149,7 +155,7 @@ public struct BetterEditor: View {
     @Environment(\.betterEditorCharacterCountLimitExceededColor) private var characterCountLimitExceededColor
     @Environment(\.betterEditorCharacterCountFont) private var characterCountFont
     @Environment(\.betterEditorOnSubmit) private var onSubmit
-
+    
     // MARK: - Initialization
     
     /// Creates a new BetterEditor with customizable properties
@@ -158,6 +164,7 @@ public struct BetterEditor: View {
     ///   - placeholder: Text to display when the editor is empty
     ///   - characterLimit: Optional maximum number of characters allowed (default: nil)
     ///   - showCharacterCount: Whether to display character count (default: false)
+    ///   - numberOfLines: Optional binding to track the number of lines (default: nil)
     ///
     /// To customize appearance, use the following modifiers:
     /// - `.font(_:)` - Sets the text font
@@ -171,19 +178,20 @@ public struct BetterEditor: View {
         text: Binding<String>,
         placeholder: String,
         characterLimit: Int? = nil,
-        showCharacterCount: Bool = false
+        showCharacterCount: Bool = false,
+        numberOfLines: Binding<Int>? = nil
     ) {
         self._text = text
         self.placeholder = placeholder
         self.characterLimit = characterLimit
         self.showCharacterCount = showCharacterCount
+        self.numberOfLines = numberOfLines
     }
-
+    
     // MARK: - Body
     
     public var body: some View {
         let finalFont = textFont ?? font ?? .body
-        print("BetterEditor - textFont: \(String(describing: textFont)), default font: \(String(describing: font)), using: \(String(describing: finalFont))")
         
         return VStack(alignment: .leading, spacing: 4) {
             ZStack(alignment: .topLeading) {
@@ -207,12 +215,23 @@ public struct BetterEditor: View {
                     .fixedSize(horizontal: false, vertical: true) // Auto-expand vertically
                     .focused($isFocused)
                     .font(finalFont)
-                    #if os(macOS)
+                    .background(
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    updateHeights(to: geometry.size.height)
+                                }
+                                .onChange(of: geometry.size.height) { newHeight in
+                                    updateHeights(to: newHeight)
+                                }
+                        }
+                    )
+#if os(macOS)
                     // Custom key handler for macOS to handle Return key events
                     .background(
                         MacOSKeyHandler(isFocused: isFocused)
                     )
-                    #endif
+#endif
                 } else {
                     // Main text editor
                     TextEditor(text: Binding(
@@ -231,41 +250,79 @@ public struct BetterEditor: View {
                     .fixedSize(horizontal: false, vertical: true) // Auto-expand vertically
                     .focused($isFocused)
                     .font(finalFont)
-                    #if os(macOS)
+                    .background(
+                        GeometryReader { geometry in
+                            Color.clear
+                                .onAppear {
+                                    updateHeights(to: geometry.size.height)
+                                }
+                                .onChange(of: geometry.size.height) { newHeight in
+                                    updateHeights(to: newHeight)
+                                }
+                        }
+                    )
+#if os(macOS)
                     // Custom key handler for macOS to handle Return key events
                     .background(
                         MacOSKeyHandler(isFocused: isFocused)
                     )
-                    #endif
+#endif
                 }
-                
                 
                 // Placeholder text shown when editor is empty
                 if text.isEmpty {
-                    Text(placeholder)
-                        .foregroundColor(placeholderColor)
-                        .font(finalFont)
-                        .padding(.leading, 5)
-                        .padding(.top, {
-                            #if os(iOS)
-                            return 8 // Additional padding for iOS
-                            #else
-                            return 0
-                            #endif
-                        }())
-                        .background(
-                            GeometryReader { geometry in
-                                Color.clear
-                                    .onAppear {
-                                        DispatchQueue.main.async {
-                                            lineHeight = geometry.size.height
-                                            
-                                            print("Measured height:", geometry.size.height)
+                    ZStack {
+                        // Hidden single line for height calculation
+                        Text("A") // Single character to measure line height
+                            .font(finalFont)
+                            .padding(.leading, 5)
+                            .padding(.top, {
+#if os(iOS)
+                                return 8 // Additional padding for iOS
+#else
+                                return 0
+#endif
+                            }())
+                            .padding(.bottom, {
+#if os(iOS)
+                                return 9.66666666666667 // Additional padding for iOS
+#else
+                                return 0
+#endif
+                            }())
+                            .background(
+                                GeometryReader { geometry in
+                                    Color.clear
+                                        .onAppear {
+                                            DispatchQueue.main.async {
+                                                lineHeight = geometry.size.height
+                                            }
                                         }
-                                    }
-                            }
-                        )
-                        .allowsHitTesting(false) // Prevent interaction with placeholder
+                                }
+                            )
+                            .hidden() // Hide the measurement view
+                        
+                        // Actual placeholder text
+                        Text(placeholder)
+                            .foregroundColor(placeholderColor)
+                            .font(finalFont)
+                            .padding(.leading, 5)
+                            .padding(.top, {
+#if os(iOS)
+                                return 8 // Additional padding for iOS
+#else
+                                return 0
+#endif
+                            }())
+                            .padding(.bottom, {
+#if os(iOS)
+                                return 9.66666666666667 // Additional padding for iOS
+#else
+                                return 0
+#endif
+                            }())
+                    }
+                    .allowsHitTesting(false) // Prevent interaction with placeholder
                 }
             }
             
@@ -275,9 +332,9 @@ public struct BetterEditor: View {
                     if let limit = characterLimit {
                         Text("\(text.count)/\(limit)")
                             .font(characterCountFont)
-                            .foregroundColor(text.count > limit ? 
-                                characterCountLimitExceededColor : 
-                                characterCountColor)
+                            .foregroundColor(text.count > limit ?
+                                             characterCountLimitExceededColor :
+                                                characterCountColor)
                     } else {
                         Text("\(text.count) characters")
                             .font(characterCountFont)
@@ -288,6 +345,31 @@ public struct BetterEditor: View {
                 .padding(.horizontal, 5)
             }
         }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func updateHeights(to height: CGFloat) {
+        totalHeight = height
+        guard lineHeight > 0 else { return }
+        
+        // 1️⃣ Compute the static padding you added around each line:
+        let paddingTotal: CGFloat = {
+#if os(iOS)
+            return 17.66666666666667 // 8 + 9.6667
+#else
+            return 0
+#endif
+        }()
+        
+        // 2️⃣ The true text-only line height:
+        let textLineHeight = lineHeight - paddingTotal
+        
+        // 3️⃣ Remove padding from the total, then floor the division:
+        let contentHeight = max(0, totalHeight - paddingTotal)
+        let lines = max(1, Int(contentHeight / textLineHeight))
+        
+        numberOfLines?.wrappedValue = lines
     }
 }
 
@@ -384,3 +466,29 @@ struct MacOSKeyHandler: NSViewRepresentable {
     }
 }
 #endif
+
+struct ContentView: View {
+    @State private var text = ""
+    @State private var numberOfLines = 0
+    var body: some View {
+        VStack {
+            VStack {
+                BetterEditor(text: $text, placeholder: "Placeholder", numberOfLines: $numberOfLines)
+            }
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.gray.opacity(0.1))
+            }
+            .padding()
+            
+            Text("Lines: \(numberOfLines)")
+            
+        }
+        .frame(height: 600)
+    }
+}
+
+#Preview {
+    ContentView()
+}

@@ -9,6 +9,7 @@ SwiftUI's built-in `TextEditor` lacks many features developers commonly need. Th
 - 📝 **Placeholder Support** - Display placeholder text when the editor is empty
 - 🔢 **Character Limit & Count** - Limit text length and display remaining characters
 - 📏 **Dynamic Height** - Automatically adjusts height based on content
+- 📊 **Line Count Tracking** - Monitor and respond to changes in the number of lines
 - ⌨️ **Return Key Handling** - Different actions for Return vs. Shift+Return
 - 🎨 **Comprehensive Styling** - Font, padding, colors, and comprehensive UI customization
 - 🖥️ **Platform Compatibility** - Works seamlessly on macOS and iOS with platform-specific optimizations
@@ -42,7 +43,8 @@ struct ContentView: View {
     var body: some View {
         BetterEditor(
             text: $text,
-            placeholder: "Type something..."
+            placeholder: "Type something...",
+            numberOfLines: $numberOfLines
         )
         .padding()
         .background(Color.gray.opacity(0.1))
@@ -63,6 +65,18 @@ BetterEditor(
     showCharacterCount: true
 )
 .betterEditorCharacterCountLimitExceededColor(.red)
+```
+
+### Line Count Tracking
+
+```swift
+@State private var numberOfLines = 0
+
+BetterEditor(
+    text: $messageText,
+    placeholder: "Type a message...",
+    numberOfLines: $numberOfLines
+)
 ```
 
 ### Custom Styling
@@ -129,7 +143,8 @@ BetterEditor(
     text: $text,                    // Required: Binding to the text content
     placeholder: "Hint text",       // Optional: Text shown when empty
     characterLimit: 140,            // Optional: Maximum character count
-    showCharacterCount: true        // Optional: Whether to display character count
+    showCharacterCount: true,       // Optional: Whether to display character count
+    numberOfLines: $numberOfLines   // Optional: Binding to track number of lines
 )
 ```
 
