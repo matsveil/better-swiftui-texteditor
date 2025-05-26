@@ -9,6 +9,7 @@ SwiftUI's built-in `TextEditor` lacks many features developers commonly need. Th
 - 📝 **Placeholder Support** - Display placeholder text when the editor is empty
 - 🔢 **Character Limit & Count** - Limit text length and display remaining characters
 - 📏 **Dynamic Height** - Automatically adjusts height based on content
+- 📐 **Height Constraints** - Set maximum height with automatic scrolling when content exceeds limit
 - 📊 **Line Count Tracking** - Monitor and respond to changes in the number of lines
 - ⌨️ **Return Key Handling** - Different actions for Return vs. Shift+Return
 - 🎨 **Comprehensive Styling** - Font, padding, colors, and comprehensive UI customization
@@ -39,6 +40,7 @@ import BetterSwiftUITextEditor
 
 struct ContentView: View {
     @State private var text = ""
+    @State private var numberOfLines = 0
     
     var body: some View {
         BetterEditor(
@@ -67,6 +69,16 @@ BetterEditor(
 .betterEditorCharacterCountLimitExceededColor(.red)
 ```
 
+### Height Constraints
+
+```swift
+BetterEditor(
+    text: $longText,
+    placeholder: "Type a long message...",
+    maxHeight: 120
+)
+```
+
 ### Line Count Tracking
 
 ```swift
@@ -75,7 +87,8 @@ BetterEditor(
 BetterEditor(
     text: $messageText,
     placeholder: "Type a message...",
-    numberOfLines: $numberOfLines
+    numberOfLines: $numberOfLines,
+    maxHeight: 100
 )
 ```
 
@@ -112,10 +125,24 @@ BetterEditor(
 ```swift
 BetterEditor(
     text: $notesText,
-    placeholder: "Write your notes here...\nSupports multiple lines"
+    placeholder: "Write your notes here...\nSupports multiple lines",
+    maxHeight: 200
 )
 .betterEditorTextFont(.body)
-.frame(minHeight: 120)
+```
+
+### Chat Interface with Height Limit
+
+```swift
+BetterEditor(
+    text: $chatText,
+    placeholder: "Type a message...",
+    maxHeight: 60
+)
+.betterEditorOnSubmit {
+    sendMessage(chatText)
+    chatText = ""
+}
 ```
 
 ## Available Modifiers
@@ -144,7 +171,8 @@ BetterEditor(
     placeholder: "Hint text",       // Optional: Text shown when empty
     characterLimit: 140,            // Optional: Maximum character count
     showCharacterCount: true,       // Optional: Whether to display character count
-    numberOfLines: $numberOfLines   // Optional: Binding to track number of lines
+    numberOfLines: $numberOfLines,  // Optional: Binding to track number of lines
+    maxHeight: 120                  // Optional: Maximum height in points
 )
 ```
 

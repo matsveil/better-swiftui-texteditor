@@ -168,6 +168,7 @@ public struct BetterEditor: View {
     ///   - characterLimit: Optional maximum number of characters allowed (default: nil)
     ///   - showCharacterCount: Whether to display character count (default: false)
     ///   - numberOfLines: Optional binding to track the number of lines (default: nil)
+    ///   - maxHeight: Optional maximum height in points; editor becomes scrollable when content exceeds this limit (default: nil)
     ///
     /// To customize appearance, use the following modifiers:
     /// - `.font(_:)` - Sets the text font
@@ -474,6 +475,7 @@ struct MacOSKeyHandler: NSViewRepresentable {
 }
 #endif
 
+#if DEBUG
 struct ContentView: View {
     @State private var text = ""
     @State private var numberOfLines = 0
@@ -491,10 +493,14 @@ struct ContentView: View {
             
             Text("Lines: \(numberOfLines)")
             
+            Spacer()
+            
         }
     }
 }
 
 #Preview {
     ContentView()
+        .frame(height: 800)
 }
+#endif

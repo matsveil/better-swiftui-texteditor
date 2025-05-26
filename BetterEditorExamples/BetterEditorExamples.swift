@@ -1,9 +1,11 @@
+#if DEBUG
+
 import SwiftUI
 import BetterSwiftUITextEditor
 
 /// A showcase view that demonstrates different configurations and customizations of BetterEditor.
 /// This view contains multiple examples illustrating various features of the BetterEditor component,
-/// such as basic usage, character limits, custom styling, return key handling, and multiline support.
+/// such as basic usage, character limits, custom styling, return key handling, multiline support, and height constraints.
 struct BetterEditorExamples: View {
     // MARK: - State Properties
     
@@ -25,6 +27,12 @@ struct BetterEditorExamples: View {
     /// Text storage for the line counting example
     @State private var lineCountingText = ""
     
+    /// Text storage for the max height example
+    @State private var maxHeightText = ""
+    
+    /// Text storage for the constrained chat example
+    @State private var chatText = ""
+    
     /// Tracks the number of lines in the line counting example
     @State private var lineCount = 0
     
@@ -33,6 +41,9 @@ struct BetterEditorExamples: View {
     
     /// Collection of messages submitted via the return key handling example
     @State private var submittedMessages: [String] = []
+    
+    /// Collection of chat messages for the constrained chat example
+    @State private var chatMessages: [String] = []
     
     // MARK: - Body
     
@@ -51,6 +62,10 @@ struct BetterEditorExamples: View {
                         sectionHeader("Character Limit & Count")
                         characterLimitExample
                         
+                        // Max height example - demonstrates height constraints
+                        sectionHeader("Height Constraints")
+                        maxHeightExample
+                        
                         // Custom styling example - demonstrates visual customizations
                         sectionHeader("Custom Styling")
                         customStylingExample
@@ -60,12 +75,16 @@ struct BetterEditorExamples: View {
                         returnKeyHandlingExample
                         
                         // Multiline example - demonstrates a larger text area for multi-paragraph content
-                        sectionHeader("Multiline Notes")
+                        sectionHeader("Multiline Notes with Max Height")
                         multilineExample
                         
                         // Line counting example - demonstrates tracking the number of lines
                         sectionHeader("Line Counting")
                         lineCountingExample
+                        
+                        // Constrained chat example - demonstrates a chat-like interface with height limits
+                        sectionHeader("Chat Interface with Height Limit")
+                        constrainedChatExample
                     }
                 }
                 .padding()
@@ -164,6 +183,50 @@ struct BetterEditorExamples: View {
         }
     }
     
+    /// Max height example demonstrating height constraints.
+    /// This example shows:
+    /// - Setting a maximum height (100 points)
+    /// - How the editor becomes scrollable when content exceeds the limit
+    /// - Combining max height with character counting
+    private var maxHeightExample: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Editor with 100pt max height - becomes scrollable when content exceeds limit")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            // BetterEditor with height constraint
+            BetterEditor(
+                text: $maxHeightText,
+                placeholder: "Type a lot of text to see scrolling behavior...\nKeep typing to exceed the height limit\nThe editor will become scrollable",
+                showCharacterCount: true,
+                maxHeight: 100
+            )
+            .betterEditorCharacterCountColor(.blue)
+            .padding(12)
+            .background(Color.blue.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+            )
+            
+            // Buttons to demonstrate the feature
+            HStack {
+                Button("Add Sample Text") {
+                    maxHeightText += "This is a sample line of text that will help demonstrate the scrolling behavior when the content exceeds the maximum height limit.\n"
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+                
+                Button("Clear") {
+                    maxHeightText = ""
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+            }
+        }
+    }
+    
     /// Custom styling example showing visual customization options.
     /// This example demonstrates:
     /// - Custom font for text
@@ -181,7 +244,8 @@ struct BetterEditorExamples: View {
             BetterEditor(
                 text: $customStyledText,
                 placeholder: "Express yourself...",
-                showCharacterCount: true
+                showCharacterCount: true,
+                maxHeight: 120
             )
             // Core SwiftUI styling
             .font(.custom("Helvetica", size: 16))
@@ -216,7 +280,8 @@ struct BetterEditorExamples: View {
             // BetterEditor configured with submit action
             BetterEditor(
                 text: $returnHandlingText,
-                placeholder: "Type a message..."
+                placeholder: "Type a message...",
+                maxHeight: 80
             )
             // Configure the action to take when user presses Return
             .betterEditorOnSubmit {
@@ -255,29 +320,44 @@ struct BetterEditorExamples: View {
         }
     }
     
-    /// Multiline example optimized for longer text content.
+    /// Multiline example optimized for longer text content with height constraints.
     /// This example demonstrates:
-    /// - Larger frame height for multiline content
+    /// - Maximum height constraint for multiline content
     /// - Multi-paragraph placeholder text
     /// - Custom font size for better readability
+    /// - Scrollable behavior when content exceeds height
     private var multilineExample: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Designed for longer text content")
+            Text("Notes editor with 150pt max height - perfect for longer content")
                 .font(.caption)
                 .foregroundColor(.secondary)
             
-            // BetterEditor configured for multiline text entry
+            // BetterEditor configured for multiline text entry with height constraint
             BetterEditor(
                 text: $multilineText,
-                placeholder: "Write your notes here...\nSupports multiple lines\nExpands as you type"
+                placeholder: "Write your notes here...\nSupports multiple lines\nExpands as you type\nBecomes scrollable when exceeding max height",
+                maxHeight: 150
             )
             // Set a specific text font for better readability
             .betterEditorTextFont(.body)
-            // Set minimum height to accommodate multiple lines
-            .frame(minHeight: 120)
             .padding(12)
             .background(Color.gray.opacity(0.1))
             .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            // Helper buttons
+            HStack {
+                Button("Add Paragraph") {
+                    multilineText += "\n\nThis is a new paragraph that demonstrates how the editor handles longer content. When the text exceeds the maximum height, the editor becomes scrollable while maintaining a consistent interface."
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+                
+                Button("Clear") {
+                    multilineText = ""
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+            }
         }
     }
     
@@ -296,7 +376,8 @@ struct BetterEditorExamples: View {
             BetterEditor(
                 text: $lineCountingText,
                 placeholder: "Type multiple lines \nWow, so many lines",
-                numberOfLines: $lineCount
+                numberOfLines: $lineCount,
+                maxHeight: 120
             )
             .padding(12)
             .background(Color.gray.opacity(0.1))
@@ -319,9 +400,80 @@ struct BetterEditorExamples: View {
             }
         }
     }
+    
+    /// Constrained chat example demonstrating a chat-like interface.
+    /// This example shows:
+    /// - Chat-style interface with height constraints
+    /// - Message submission and display
+    /// - Practical use of maxHeight in a real-world scenario
+    private var constrainedChatExample: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Chat interface with 60pt input height limit")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            // Chat messages display
+            if !chatMessages.isEmpty {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 4) {
+                        ForEach(chatMessages, id: \.self) { message in
+                            HStack {
+                                Text(message)
+                                    .padding(8)
+                                    .background(Color.green.opacity(0.2))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                Spacer()
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                }
+                .frame(maxHeight: 120)
+                .background(Color.gray.opacity(0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            
+            // Chat input with constrained height
+            HStack(alignment: .bottom, spacing: 8) {
+                BetterEditor(
+                    text: $chatText,
+                    placeholder: "Type a message...",
+                    maxHeight: 60
+                )
+                .betterEditorOnSubmit {
+                    if !chatText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        chatMessages.append(chatText)
+                        chatText = ""
+                    }
+                }
+                .padding(8)
+                .background(Color.gray.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                
+                Button("Send") {
+                    if !chatText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        chatMessages.append(chatText)
+                        chatText = ""
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(chatText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            
+            if !chatMessages.isEmpty {
+                Button("Clear Chat") {
+                    chatMessages.removeAll()
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+            }
+        }
+    }
 }
 
 /// SwiftUI preview for the BetterEditorExamples view
 #Preview {
     BetterEditorExamples()
-} 
+}
+
+#endif

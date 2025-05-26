@@ -14,9 +14,6 @@ let package = Package(
         .library(
             name: "BetterSwiftUITextEditor",
             targets: ["BetterSwiftUITextEditor"]),
-        .library(
-            name: "BetterEditorExamples",
-            targets: ["BetterEditorExamples"]),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
