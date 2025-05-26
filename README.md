@@ -23,7 +23,7 @@ Add BetterSwiftUITextEditor to your Swift package dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/matsveil/better-swiftui-texteditor.git", from: "1.0.3")
+    .package(url: "https://github.com/matsveil/better-swiftui-texteditor.git", from: "1.0.5")
 ]
 ```
 
