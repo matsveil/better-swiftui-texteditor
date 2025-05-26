@@ -138,6 +138,9 @@ public struct BetterEditor: View {
     /// Binding to track the number of lines
     private let numberOfLines: Binding<Int>?
     
+    /// Optional maximum height for the editor
+    private let maxHeight: CGFloat?
+    
     /// Tracks the calculated line height for proper sizing
     @State private var lineHeight: CGFloat = 0
     
@@ -179,13 +182,15 @@ public struct BetterEditor: View {
         placeholder: String,
         characterLimit: Int? = nil,
         showCharacterCount: Bool = false,
-        numberOfLines: Binding<Int>? = nil
+        numberOfLines: Binding<Int>? = nil,
+        maxHeight: CGFloat? = nil
     ) {
         self._text = text
         self.placeholder = placeholder
         self.characterLimit = characterLimit
         self.showCharacterCount = showCharacterCount
         self.numberOfLines = numberOfLines
+        self.maxHeight = maxHeight
     }
     
     // MARK: - Body
@@ -212,6 +217,7 @@ public struct BetterEditor: View {
                     .writingToolsBehavior(.complete)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: lineHeight)
+                    .frame(maxHeight: maxHeight)
                     .fixedSize(horizontal: false, vertical: true) // Auto-expand vertically
                     .focused($isFocused)
                     .font(finalFont)
@@ -247,6 +253,7 @@ public struct BetterEditor: View {
                     ))
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: lineHeight)
+                    .frame(maxHeight: maxHeight)
                     .fixedSize(horizontal: false, vertical: true) // Auto-expand vertically
                     .focused($isFocused)
                     .font(finalFont)
@@ -473,7 +480,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             VStack {
-                BetterEditor(text: $text, placeholder: "Placeholder", numberOfLines: $numberOfLines)
+                BetterEditor(text: $text, placeholder: "Placeholder", numberOfLines: $numberOfLines, maxHeight: 400)
             }
             .padding()
             .background {
@@ -485,7 +492,6 @@ struct ContentView: View {
             Text("Lines: \(numberOfLines)")
             
         }
-        .frame(height: 600)
     }
 }
 
