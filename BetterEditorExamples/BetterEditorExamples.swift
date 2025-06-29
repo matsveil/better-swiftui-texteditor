@@ -30,24 +30,11 @@ struct BetterEditorExamples: View {
     /// Text storage for the max height example
     @State private var maxHeightText = ""
     
-    /// Text storage for the constrained chat example
-    @State private var chatText = ""
-    
     /// Text storage for the scroll indicators example
     @State private var scrollIndicatorsText = ""
     
-    /// Controls the visibility of scroll indicators in the example
-    @State private var scrollIndicatorVisibilityIndex: Int = 0
-    
-    /// Computed property to get the actual ScrollIndicatorVisibility from the index
-    private var scrollIndicatorVisibility: ScrollIndicatorVisibility {
-        switch scrollIndicatorVisibilityIndex {
-        case 0: return .automatic
-        case 1: return .visible
-        case 2: return .hidden
-        default: return .automatic
-        }
-    }
+    /// Text storage for the constrained chat example
+    @State private var chatText = ""
     
     /// Tracks the number of lines in the line counting example
     @State private var lineCount = 0
@@ -250,43 +237,69 @@ struct BetterEditorExamples: View {
     /// Scroll indicators example demonstrating scroll indicator visibility control.
     /// This example shows:
     /// - How to control the visibility of scroll indicators
-    /// - Practical use of scroll indicators in a real-world scenario
+    /// - Different scroll indicator visibility modes
+    /// - Comparison between hidden and visible scroll indicators
     private var scrollIndicatorsExample: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Control scroll indicator visibility - add text to see scrolling")
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Compare different scroll indicator visibility modes")
                 .font(.caption)
                 .foregroundColor(.secondary)
             
-            // Picker to select scroll indicator visibility
-            Picker("Scroll Indicators", selection: $scrollIndicatorVisibilityIndex) {
-                Text("Automatic").tag(0)
-                Text("Visible").tag(1)
-                Text("Hidden").tag(2)
+            // Editor with hidden scroll indicators (default)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Hidden scroll indicators (default)")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                
+                BetterEditor(
+                    text: $scrollIndicatorsText,
+                    placeholder: "Scroll indicators are hidden by default...",
+                    maxHeight: 80
+                )
+                .betterEditorScrollIndicators(.never)
+                .padding(8)
+                .background(Color.gray.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
             }
-            .pickerStyle(.segmented)
-            .font(.caption)
             
-            // BetterEditor with scroll indicators control
-            BetterEditor(
-                text: $scrollIndicatorsText,
-                placeholder: "Type multiple lines to see scroll indicators in action...\n\nAdd more content to exceed the height limit and observe how the scroll indicators behave based on your selection above.",
-                showCharacterCount: true,
-                maxHeight: 100
-            )
-            .betterEditorScrollIndicators(scrollIndicatorVisibility)
-            .betterEditorCharacterCountColor(.orange)
-            .padding(12)
-            .background(Color.orange.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-            )
+            // Editor with visible scroll indicators
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Always visible scroll indicators")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                
+                BetterEditor(
+                    text: $scrollIndicatorsText,
+                    placeholder: "Scroll indicators are always visible...",
+                    maxHeight: 80
+                )
+                .betterEditorScrollIndicators(.visible)
+                .padding(8)
+                .background(Color.green.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+            
+            // Editor with automatic scroll indicators
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Automatic scroll indicators")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                
+                BetterEditor(
+                    text: $scrollIndicatorsText,
+                    placeholder: "Scroll indicators appear when actively scrolling...",
+                    maxHeight: 80
+                )
+                .betterEditorScrollIndicators(.automatic)
+                .padding(8)
+                .background(Color.blue.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
             
             // Buttons to demonstrate the feature
             HStack {
                 Button("Add Sample Text") {
-                    scrollIndicatorsText += "This is a sample line of text that demonstrates scrolling behavior. When content exceeds the height limit, you can see how different scroll indicator visibility settings affect the user interface.\n"
+                    scrollIndicatorsText += "This is a sample line of text that will help demonstrate the scrolling behavior and scroll indicator visibility. "
                 }
                 .buttonStyle(.bordered)
                 .font(.caption)
@@ -297,12 +310,6 @@ struct BetterEditorExamples: View {
                 .buttonStyle(.bordered)
                 .font(.caption)
             }
-            
-            // Explanation of the current setting
-            Text("Current setting: \(scrollIndicatorVisibility == .automatic ? "Automatic (shows when scrolling)" : scrollIndicatorVisibility == .visible ? "Always visible" : "Hidden")")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .padding(.top, 4)
         }
     }
     

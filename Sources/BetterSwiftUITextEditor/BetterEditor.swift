@@ -38,7 +38,7 @@ struct BetterEditorOnSubmitKey: EnvironmentKey {
 }
 
 struct BetterEditorScrollIndicatorsKey: EnvironmentKey {
-    static let defaultValue: ScrollIndicatorVisibility = .automatic
+    static let defaultValue: ScrollIndicatorVisibility = .never
 }
 
 // MARK: - Environment Value Extensions
@@ -113,7 +113,7 @@ public extension View {
         environment(\.betterEditorOnSubmit, action)
     }
     
-    /// Sets the visibility of scroll indicators in BetterEditor
+    /// Sets the scroll indicators visibility in BetterEditor
     func betterEditorScrollIndicators(_ visibility: ScrollIndicatorVisibility) -> some View {
         environment(\.betterEditorScrollIndicators, visibility)
     }
@@ -193,7 +193,7 @@ public struct BetterEditor: View {
     /// - `.betterEditorCharacterCountLimitExceededColor(_:)` - Sets the color when limit is exceeded
     /// - `.betterEditorCharacterCountFont(_:)` - Sets the character count font
     /// - `.betterEditorOnSubmit(_:)` - Sets the action to perform when Return is pressed
-    /// - `.betterEditorScrollIndicators(_:)` - Sets the visibility of scroll indicators
+    /// - `.betterEditorScrollIndicators(_:)` - Sets the scroll indicators visibility
     public init(
         text: Binding<String>,
         placeholder: String,
@@ -245,7 +245,7 @@ public struct BetterEditor: View {
                                 .onAppear {
                                     updateHeights(to: geometry.size.height)
                                 }
-                                .onChange(of: geometry.size.height) { newHeight in
+                                .onChange(of: geometry.size.height) { _, newHeight in
                                     updateHeights(to: newHeight)
                                 }
                         }
@@ -282,7 +282,7 @@ public struct BetterEditor: View {
                                 .onAppear {
                                     updateHeights(to: geometry.size.height)
                                 }
-                                .onChange(of: geometry.size.height) { newHeight in
+                                .onChange(of: geometry.size.height) { _, newHeight in
                                     updateHeights(to: newHeight)
                                 }
                         }
