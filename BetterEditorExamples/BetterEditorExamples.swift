@@ -37,7 +37,7 @@ struct BetterEditorExamples: View {
     @State private var scrollIndicatorsText = ""
     
     /// Controls the visibility of scroll indicators in the example
-    @State private var scrollIndicatorVisibility: Visibility = .automatic
+    @State private var scrollIndicatorVisibility: ScrollIndicatorVisibility = .automatic
     
     /// Tracks the number of lines in the line counting example
     @State private var lineCount = 0
@@ -249,9 +249,9 @@ struct BetterEditorExamples: View {
             
             // Picker to select scroll indicator visibility
             Picker("Scroll Indicators", selection: $scrollIndicatorVisibility) {
-                Text("Automatic").tag(Visibility.automatic)
-                Text("Visible").tag(Visibility.visible)
-                Text("Hidden").tag(Visibility.hidden)
+                Text("Automatic").tag(ScrollIndicatorVisibility.automatic)
+                Text("Visible").tag(ScrollIndicatorVisibility.visible)
+                Text("Hidden").tag(ScrollIndicatorVisibility.hidden)
             }
             .pickerStyle(.segmented)
             .font(.caption)

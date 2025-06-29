@@ -38,7 +38,7 @@ struct BetterEditorOnSubmitKey: EnvironmentKey {
 }
 
 struct BetterEditorScrollIndicatorsKey: EnvironmentKey {
-    static let defaultValue: Visibility = .automatic
+    static let defaultValue: ScrollIndicatorVisibility = .automatic
 }
 
 // MARK: - Environment Value Extensions
@@ -74,7 +74,7 @@ public extension EnvironmentValues {
         set { self[BetterEditorOnSubmitKey.self] = newValue }
     }
     
-    var betterEditorScrollIndicators: Visibility {
+    var betterEditorScrollIndicators: ScrollIndicatorVisibility {
         get { self[BetterEditorScrollIndicatorsKey.self] }
         set { self[BetterEditorScrollIndicatorsKey.self] = newValue }
     }
@@ -114,7 +114,7 @@ public extension View {
     }
     
     /// Sets the visibility of scroll indicators in BetterEditor
-    func betterEditorScrollIndicators(_ visibility: Visibility) -> some View {
+    func betterEditorScrollIndicators(_ visibility: ScrollIndicatorVisibility) -> some View {
         environment(\.betterEditorScrollIndicators, visibility)
     }
 }
