@@ -37,6 +37,10 @@ struct BetterEditorOnSubmitKey: EnvironmentKey {
     static let defaultValue: (@MainActor () -> Void)? = nil
 }
 
+struct BetterEditorScrollIndicatorsKey: EnvironmentKey {
+    static let defaultValue: Visibility = .automatic
+}
+
 // MARK: - Environment Value Extensions
 
 public extension EnvironmentValues {
@@ -68,6 +72,11 @@ public extension EnvironmentValues {
     var betterEditorOnSubmit: (@MainActor () -> Void)? {
         get { self[BetterEditorOnSubmitKey.self] }
         set { self[BetterEditorOnSubmitKey.self] = newValue }
+    }
+    
+    var betterEditorScrollIndicators: Visibility {
+        get { self[BetterEditorScrollIndicatorsKey.self] }
+        set { self[BetterEditorScrollIndicatorsKey.self] = newValue }
     }
 }
 
@@ -102,6 +111,11 @@ public extension View {
     /// Sets the action to perform when the Return key is pressed without modifiers
     func betterEditorOnSubmit(_ action: @escaping @MainActor () -> Void) -> some View {
         environment(\.betterEditorOnSubmit, action)
+    }
+    
+    /// Sets the visibility of scroll indicators in BetterEditor
+    func betterEditorScrollIndicators(_ visibility: Visibility) -> some View {
+        environment(\.betterEditorScrollIndicators, visibility)
     }
 }
 
@@ -158,6 +172,7 @@ public struct BetterEditor: View {
     @Environment(\.betterEditorCharacterCountLimitExceededColor) private var characterCountLimitExceededColor
     @Environment(\.betterEditorCharacterCountFont) private var characterCountFont
     @Environment(\.betterEditorOnSubmit) private var onSubmit
+    @Environment(\.betterEditorScrollIndicators) private var scrollIndicators
     
     // MARK: - Initialization
     
@@ -178,6 +193,7 @@ public struct BetterEditor: View {
     /// - `.betterEditorCharacterCountLimitExceededColor(_:)` - Sets the color when limit is exceeded
     /// - `.betterEditorCharacterCountFont(_:)` - Sets the character count font
     /// - `.betterEditorOnSubmit(_:)` - Sets the action to perform when Return is pressed
+    /// - `.betterEditorScrollIndicators(_:)` - Sets the visibility of scroll indicators
     public init(
         text: Binding<String>,
         placeholder: String,
@@ -217,6 +233,7 @@ public struct BetterEditor: View {
                     ))
                     .writingToolsBehavior(.complete)
                     .scrollContentBackground(.hidden)
+                    .scrollIndicators(scrollIndicators)
                     .frame(minHeight: lineHeight)
                     .frame(maxHeight: maxHeight)
                     .fixedSize(horizontal: false, vertical: true) // Auto-expand vertically
@@ -253,6 +270,7 @@ public struct BetterEditor: View {
                         }
                     ))
                     .scrollContentBackground(.hidden)
+                    .scrollIndicators(scrollIndicators)
                     .frame(minHeight: lineHeight)
                     .frame(maxHeight: maxHeight)
                     .fixedSize(horizontal: false, vertical: true) // Auto-expand vertically

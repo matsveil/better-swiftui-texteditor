@@ -33,6 +33,12 @@ struct BetterEditorExamples: View {
     /// Text storage for the constrained chat example
     @State private var chatText = ""
     
+    /// Text storage for the scroll indicators example
+    @State private var scrollIndicatorsText = ""
+    
+    /// Controls the visibility of scroll indicators in the example
+    @State private var scrollIndicatorVisibility: Visibility = .automatic
+    
     /// Tracks the number of lines in the line counting example
     @State private var lineCount = 0
     
@@ -65,6 +71,10 @@ struct BetterEditorExamples: View {
                         // Max height example - demonstrates height constraints
                         sectionHeader("Height Constraints")
                         maxHeightExample
+                        
+                        // Scroll indicators example - demonstrates scroll indicator visibility control
+                        sectionHeader("Scroll Indicators")
+                        scrollIndicatorsExample
                         
                         // Custom styling example - demonstrates visual customizations
                         sectionHeader("Custom Styling")
@@ -224,6 +234,65 @@ struct BetterEditorExamples: View {
                 .buttonStyle(.bordered)
                 .font(.caption)
             }
+        }
+    }
+    
+    /// Scroll indicators example demonstrating scroll indicator visibility control.
+    /// This example shows:
+    /// - How to control the visibility of scroll indicators
+    /// - Practical use of scroll indicators in a real-world scenario
+    private var scrollIndicatorsExample: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Control scroll indicator visibility - add text to see scrolling")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            // Picker to select scroll indicator visibility
+            Picker("Scroll Indicators", selection: $scrollIndicatorVisibility) {
+                Text("Automatic").tag(Visibility.automatic)
+                Text("Visible").tag(Visibility.visible)
+                Text("Hidden").tag(Visibility.hidden)
+            }
+            .pickerStyle(.segmented)
+            .font(.caption)
+            
+            // BetterEditor with scroll indicators control
+            BetterEditor(
+                text: $scrollIndicatorsText,
+                placeholder: "Type multiple lines to see scroll indicators in action...\n\nAdd more content to exceed the height limit and observe how the scroll indicators behave based on your selection above.",
+                showCharacterCount: true,
+                maxHeight: 100
+            )
+            .betterEditorScrollIndicators(scrollIndicatorVisibility)
+            .betterEditorCharacterCountColor(.orange)
+            .padding(12)
+            .background(Color.orange.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+            )
+            
+            // Buttons to demonstrate the feature
+            HStack {
+                Button("Add Sample Text") {
+                    scrollIndicatorsText += "This is a sample line of text that demonstrates scrolling behavior. When content exceeds the height limit, you can see how different scroll indicator visibility settings affect the user interface.\n"
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+                
+                Button("Clear") {
+                    scrollIndicatorsText = ""
+                }
+                .buttonStyle(.bordered)
+                .font(.caption)
+            }
+            
+            // Explanation of the current setting
+            Text("Current setting: \(scrollIndicatorVisibility == .automatic ? "Automatic (shows when scrolling)" : scrollIndicatorVisibility == .visible ? "Always visible" : "Hidden")")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
         }
     }
     
