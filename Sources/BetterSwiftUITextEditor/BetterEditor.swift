@@ -210,15 +210,16 @@ public struct BetterEditor: View {
         #endif
     }
     
-    /// The effective height for the TextEditor frame, derived from the hidden Text measurement.
-    /// This is the key to the fix: totalHeight comes from a hidden Text view that always
-    /// reports its true natural size. When lines are deleted, Text shrinks, so this shrinks.
+    /// Whether content exceeds the maxHeight cap and the editor should scroll
+    private var isOverflowing: Bool {
+        guard let maxHeight else { return false }
+        return max(totalHeight, lineHeight) > maxHeight
+    }
+    
+    /// The effective height for the TextEditor frame when content fits.
+    /// When overflowing, we use maxHeight as a fixed frame instead.
     private var editorHeight: CGFloat {
-        let height = max(totalHeight, lineHeight)
-        if let maxHeight {
-            return min(height, maxHeight)
-        }
-        return height
+        max(totalHeight, lineHeight)
     }
     
     /// Binding that enforces the character limit on every edit
@@ -249,6 +250,8 @@ public struct BetterEditor: View {
                 // as a Text view with fixedSize. Unlike TextEditor, Text always
                 // reports its natural intrinsic size, so it shrinks when lines
                 // are removed. The trailing space accounts for the cursor line.
+                // Wrapped in frame(height: 0) + clipped so it doesn't inflate
+                // the ZStack when content exceeds maxHeight.
                 Text(text.isEmpty ? " " : text + " ")
                     .font(finalFont)
                     .padding(.leading, 5)
@@ -278,7 +281,8 @@ public struct BetterEditor: View {
                                 }
                         }
                     )
-                    .hidden()
+                    .frame(height: 0)
+                    .clipped()
                     .accessibilityHidden(true)
                 
                 // Measures a single line height to use as the minimum editor height
@@ -307,7 +311,8 @@ public struct BetterEditor: View {
                                 }
                         }
                     )
-                    .hidden()
+                    .frame(height: 0)
+                    .clipped()
                     .accessibilityHidden(true)
                 
                 // MARK: TextEditor
@@ -317,7 +322,12 @@ public struct BetterEditor: View {
                         .writingToolsBehavior(.complete)
                         .scrollContentBackground(.hidden)
                         .scrollIndicators(scrollIndicators)
-                        .frame(height: editorHeight)
+                        // When content fits: exact height tracks content so it shrinks on delete.
+                        // When overflowing: cap at maxHeight and let TextEditor scroll internally.
+                        .frame(
+                            minHeight: lineHeight,
+                            maxHeight: isOverflowing ? maxHeight : editorHeight
+                        )
                         .focused($isFocused)
                         .font(finalFont)
                         #if os(macOS)
@@ -329,7 +339,10 @@ public struct BetterEditor: View {
                     TextEditor(text: limitedTextBinding)
                         .scrollContentBackground(.hidden)
                         .scrollIndicators(scrollIndicators)
-                        .frame(height: editorHeight)
+                        .frame(
+                            minHeight: lineHeight,
+                            maxHeight: isOverflowing ? maxHeight : editorHeight
+                        )
                         .focused($isFocused)
                         .font(finalFont)
                         #if os(macOS)
@@ -495,7 +508,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             VStack {
-                BetterEditor(text: $text, placeholder: "Placeholder", numberOfLines: $numberOfLines, maxHeight: 400)
+                BetterEditor(text: $text, placeholder: "Placeholder", numberOfLines: $numberOfLines, maxHeight: 200)
             }
             .padding()
             .background {
@@ -514,6 +527,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .frame(height: 200)
+        .frame(height: 500)
 }
 #endif
