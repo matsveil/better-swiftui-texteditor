@@ -212,26 +212,21 @@ public struct BetterEditor: View {
     
     /// Whether content exceeds the maxHeight cap and the editor should scroll
     private var isOverflowing: Bool {
-        guard let maxHeight else { return false }
-        return max(totalHeight, lineHeight) > maxHeight
+        BetterEditorLogic.isOverflowing(editorHeight: editorHeight, maxHeight: maxHeight)
     }
-    
+
     /// The effective height for the TextEditor frame when content fits.
     /// When overflowing, we use maxHeight as a fixed frame instead.
     private var editorHeight: CGFloat {
-        max(totalHeight, lineHeight)
+        BetterEditorLogic.editorHeight(totalHeight: totalHeight, lineHeight: lineHeight)
     }
-    
+
     /// Binding that enforces the character limit on every edit
     private var limitedTextBinding: Binding<String> {
         Binding(
             get: { text },
             set: { newValue in
-                if let limit = characterLimit, newValue.count > limit {
-                    text = String(newValue.prefix(limit))
-                } else {
-                    text = newValue
-                }
+                text = BetterEditorLogic.applyCharacterLimit(to: newValue, limit: characterLimit)
             }
         )
     }
@@ -352,8 +347,14 @@ public struct BetterEditor: View {
                         #endif
                 }
                 
+            }
+            .overlay(alignment: .topLeading) {
                 // MARK: Placeholder
-                
+                //
+                // Rendered as an overlay so it never participates in layout sizing.
+                // A ZStack child without a height constraint would make the ZStack
+                // taller than the TextEditor while the placeholder is visible,
+                // causing a layout shift when text is entered or cleared.
                 if text.isEmpty {
                     Text(placeholder)
                         .foregroundColor(placeholderColor)
@@ -403,14 +404,11 @@ public struct BetterEditor: View {
     
     private func updateLineCount() {
         guard lineHeight > 0 else { return }
-        
-        let textLineHeight = lineHeight - verticalPadding
-        guard textLineHeight > 0 else { return }
-        
-        let contentHeight = max(0, totalHeight - verticalPadding)
-        let lines = max(1, Int(round(contentHeight / textLineHeight)))
-        
-        numberOfLines?.wrappedValue = lines
+        numberOfLines?.wrappedValue = BetterEditorLogic.calculateLineCount(
+            totalHeight: totalHeight,
+            lineHeight: lineHeight,
+            verticalPadding: verticalPadding
+        )
     }
 }
 
@@ -507,8 +505,15 @@ struct ContentView: View {
     @State private var numberOfLines = 0
     var body: some View {
         VStack {
+            
+            BetterEditor(text: $text, placeholder: "Schedule anything...", numberOfLines: $numberOfLines, maxHeight: 400)
+
+                .betterEditorTextFont(.system(.title2, design: .monospaced))
+            
+            
             VStack {
                 BetterEditor(text: $text, placeholder: "Placeholder", numberOfLines: $numberOfLines, maxHeight: 200)
+                    
             }
             .padding()
             .background {
@@ -525,8 +530,10 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
-        .frame(height: 500)
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .frame(height: 500)
+    }
 }
 #endif

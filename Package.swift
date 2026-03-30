@@ -25,6 +25,9 @@ let package = Package(
         .target(
             name: "BetterEditorExamples",
             dependencies: ["BetterSwiftUITextEditor"],
-            path: "BetterEditorExamples")
+            path: "BetterEditorExamples"),
+        .testTarget(
+            name: "BetterSwiftUITextEditorTests",
+            dependencies: ["BetterSwiftUITextEditor"])
     ]
 )

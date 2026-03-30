@@ -558,8 +558,10 @@ struct BetterEditorExamples: View {
 }
 
 /// SwiftUI preview for the BetterEditorExamples view
-#Preview {
-    BetterEditorExamples()
+struct BetterEditorExamples_Previews: PreviewProvider {
+    static var previews: some View {
+        BetterEditorExamples()
+    }
 }
 
 #endif
