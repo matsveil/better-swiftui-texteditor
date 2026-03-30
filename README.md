@@ -180,7 +180,7 @@ Additional styling is applied through modifiers as shown in the examples above.
 
 ## Requirements
 
-- iOS 16.0+
+- iOS 17.0+
 - macOS 13.0+
 - Swift 5.3+
 - Xcode 14.0+

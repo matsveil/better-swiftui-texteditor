@@ -1,6 +1,5 @@
 //
 //  BetterEditor.swift
-//  Snippy
 //
 //  Created by Matsvei Liapich on 5/16/25.
 //
@@ -379,7 +378,7 @@ public struct BetterEditor: View {
         totalHeight = height
         guard lineHeight > 0 else { return }
         
-        // 1️⃣ Compute the static padding you added around each line:
+        // 1. Compute the static padding you added around each line:
         let paddingTotal: CGFloat = {
 #if os(iOS)
             return 17.66666666666667 // 8 + 9.6667
@@ -388,10 +387,10 @@ public struct BetterEditor: View {
 #endif
         }()
         
-        // 2️⃣ The true text-only line height:
+        // 2. The true text-only line height:
         let textLineHeight = lineHeight - paddingTotal
         
-        // 3️⃣ Remove padding from the total, then floor the division:
+        // 3. Remove padding from the total, then floor the division:
         let contentHeight = max(0, totalHeight - paddingTotal)
         let lines = max(1, Int(contentHeight / textLineHeight))
         
@@ -519,6 +518,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .frame(height: 800)
+        .frame(height: 200)
 }
 #endif
